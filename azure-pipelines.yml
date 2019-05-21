@@ -42,9 +42,9 @@ variables:
   AROSBUILDTOOLCHAINDIR:  '$(AZBUILDPATH)/toolchain' # Location builds are done in
   AROSPORTSSRCSDIR:  '$(AZBUILDPATH)/portssources' #
   AROSBUILDSDIR:  '$(AZBUILDPATH)/builds' # Location builds are done in
-  AZBUILDPATH: '$(system.defaultWorkingDirectory)' # workspace path
+  AZBUILDPATH: '$(Build.BinariesDirectory)' # workspace path
   AROSBUILDDIR:  '$(AROSBUILDSDIR)/$(arosbuild.name)' # Actual build directory
-  #modulePath: '$(AZBUILDPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  AROSSRCDIR: '$(system.defaultWorkingDirectory)' # Path to the source code
 
 steps:
 - script: |
