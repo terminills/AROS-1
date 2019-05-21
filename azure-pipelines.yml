@@ -68,7 +68,7 @@ steps:
   displayName: 'Setup $(arosbuild.name) workspace'
 
 - script: |
-    ../../configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
+    $(AROSSRCDIR)/configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
     make
   workingDirectory: '$(AROSBUILDDIR)'
   displayName: 'Build $(arosbuild.name)'
