@@ -1,10 +1,41 @@
-# C/C++ with GCC
-# Build your C/C++ project with GCC using make.
-# Add steps that publish test results, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
 trigger:
 - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+strategy:
+  matrix:
+    linux-i386:
+      arosbuild.target: 'linux-i386'
+      arosbuild.name: 'linux-i386'
+    pc-i386:
+      arosbuild.target: 'pc-i386'
+      arosbuild.name: 'pc-i386'
+    linux-x86_64:
+      arosbuild.target: 'linux-x86_64'
+      arosbuild.name: 'linux-x86_64'
+    pc-x86_64:
+      arosbuild.target: 'pc-x86_64'
+      arosbuild.name: 'pc-x86_64'
+    pc-x86_64-smp:
+      arosbuild.target: 'pc-x86_64'
+      arosbuild.variant: 'smp'
+      arosbuild.name: 'pc-x86_64-smp'
+    amiga-m68k:
+      arosbuild.target: 'amiga-m68k'
+      arosbuild.name: 'amiga-m68k'
+    sam440-ppc:
+      arosbuild.target: 'sam440-ppc'
+      arosbuild.name: 'sam440-ppc'
+    raspi-armhf:
+      arosbuild.target: 'raspi-armhf'
+      arosbuild.name: 'raspi-armhf'
 
 variables:
   AROSBUILDGCCVERS: '9.1.0'
@@ -12,52 +43,32 @@ variables:
   AROSPORTSSRCSDIR:  '$(AZBUILDPATH)/portssources' #
   AROSBUILDSDIR:  '$(AZBUILDPATH)/builds' # Location builds are done in
   AZBUILDPATH: '$(system.defaultWorkingDirectory)' # workspace path
+  AROSBUILDDIR:  '$(AROSBUILDSDIR)/$(arosbuild.name)' # Actual build directory
   #modulePath: '$(AZBUILDPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
 
-jobs:
-- job: Setup
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - script: |
-      mkdir -p '$(AROSBUILDSDIR)'
-      mkdir -p '$(AROSBUILDTOOLCHAINDIR)'
-      mkdir -p '$(AROSPORTSSRCSDIR)'
-      echo '##vso[task.prependpath]$(AROSBUILDTOOLCHAINDIR)'
-      echo '##vso[task.prependpath]$(AROSBUILDSDIR)'
-      echo '##vso[task.prependpath]$(AROSPORTSSRCSDIR)'
-    displayName: 'Setup workspace'
+steps:
+- script: |
+    sudo apt-key adv --keyserver packages.microsoft.com --recv-keys B02C46DF417A0893
+    sudo apt-get install -y netpbm libpng-dev zlib1g-dev libxcursor-dev libgl1-mesa-dev libasound2-dev
+    sudo apt-get install -y gawk bison flex netpbm automake cmake python-mako libswitch-perl gperf gcc-multilib g++
+  displayName: 'Installing AROS build dependencies'
 
-- job: Build
-  dependsOn: Setup
-  strategy:
-    matrix:
-      pc-i386:
-        arosbuild.target: 'pc-i386'
-        arosbuild.name: $(arosbuild.target)
-      pc-x86_64:
-        arosbuild.target: 'pc-x86_64'
-        arosbuild.name: $(arosbuild.target)
-      pc-x86_64-smp:
-        arosbuild.target: 'pc-x86_64'
-        arosbuild.variant: 'smp'
-        arosbuild.name: $(arosbuild.target)'-'$(arosbuild.variant)
-      amiga-m68k:
-        arosbuild.target: 'amiga-m68k'
-        arosbuild.name: $(arosbuild.target)
-  variables:
-    AROSBUILDDIR:  '$(AROSBUILDSDIR)/$(arosbuild.target)' # Actual build directory
-  steps:
-  - script: |
-      mkdir -p '$(AROSBUILDDIR)'
-      mkdir -p '$(AROSBUILDTOOLCHAINDIR)'
-      echo '##vso[task.prependpath]$(AROSBUILDTOOLCHAINDIR)'
-      echo '##vso[task.prependpath]$(AROSPORTSSRCSDIR)'
-      echo '##vso[task.prependpath]$(AROSBUILDDIR)'
-    displayName: 'setup $(arosbuild.name)'
+- script: |
+    mkdir -p '$(AROSBUILDSDIR)'
+    mkdir -p '$(AROSBUILDTOOLCHAINDIR)'
+    mkdir -p '$(AROSPORTSSRCSDIR)'
+    echo '##vso[task.prependpath]$(AROSBUILDTOOLCHAINDIR)'
+    echo '##vso[task.prependpath]$(AROSBUILDSDIR)'
+    echo '##vso[task.prependpath]$(AROSPORTSSRCSDIR)'
+  displayName: 'Setup common workspace'
 
-  - script: |
-      ../../configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
-      make
-    workingDirectory: '$(AROSBUILDDIR)'
-    displayName: 'build $(arosbuild.name)'
+- script: |
+    mkdir -p '$(AROSBUILDDIR)'
+    echo '##vso[task.prependpath]$(AROSBUILDDIR)'
+  displayName: 'Setup $(arosbuild.name) workspace'
+
+- script: |
+    ../../configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
+    make
+  workingDirectory: '$(AROSBUILDDIR)'
+  displayName: 'Build $(arosbuild.name)'
