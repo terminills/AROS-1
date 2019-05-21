@@ -10,6 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 strategy:
+  maxParallel: 2
   matrix:
     linux-i386:
       arosbuild.target: 'linux-i386'
@@ -69,6 +70,6 @@ steps:
 
 - script: |
     $(AROSSRCDIR)/configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
-    make
+    make -j
   workingDirectory: '$(AROSBUILDDIR)'
   displayName: 'Build $(arosbuild.name)'
