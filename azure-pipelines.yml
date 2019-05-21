@@ -51,7 +51,7 @@ steps:
 - script: |
     sudo apt-key adv --keyserver packages.microsoft.com --recv-keys B02C46DF417A0893
     sudo apt-get install -y netpbm libpng-dev zlib1g-dev libxcursor-dev libgl1-mesa-dev libasound2-dev
-    sudo apt-get install -y gawk bison flex netpbm automake cmake python-mako libswitch-perl gperf gcc-multilib g++
+    sudo apt-get install -y gawk bison flex netpbm automake cmake python-mako libswitch-perl gperf gcc-multilib g++ ccache
   displayName: 'Installing AROS build dependencies'
 
 - script: |
