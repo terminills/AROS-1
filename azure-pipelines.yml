@@ -40,11 +40,13 @@ strategy:
 
 variables:
   AROSBUILDGCCVERS: '9.1.0'
-  AROSBUILDTOOLCHAINDIR:  '$(AZBUILDPATH)/toolchain' # Location builds are done in
-  AROSPORTSSRCSDIR:  '$(AZBUILDPATH)/portssources' #
+  AROSBUILDTOOLCHAINDIR:  '$(AZBUILDPATH)/toolchain' # Location toolchains are installed in
+  AROSPORTSSRCSDIR:  '$(AZBUILDPATH)/portssources' # Location external sources are downloaded to.
   AROSBUILDSDIR:  '$(AZBUILDPATH)/builds' # Location builds are done in
+  AROSLOGSDIR:  '$(AZBUILDPATH)/logs' # Location logs are stored in.
+  AROSDISTFILESDIR:  '$(AZBUILDPATH)/distfiles' # Location built binaries are copied to.
   AZBUILDPATH: '$(Build.BinariesDirectory)' # workspace path
-  AROSBUILDDIR:  '$(AROSBUILDSDIR)/$(arosbuild.name)' # Actual build directory
+  AROSBUILDDIR:  '$(AROSBUILDSDIR)/$(arosbuild.name)' # current builds directory
   AROSSRCDIR: '$(system.defaultWorkingDirectory)' # Path to the source code
 
 steps:
@@ -69,7 +71,7 @@ steps:
   displayName: 'Setup $(arosbuild.name) workspace'
 
 - script: |
-    $(AROSSRCDIR)/configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR)
+    $(AROSSRCDIR)/configure --target=$(arosbuild.target) --enable-target-variant=$(arosbuild.variant) --enable-ccache --with-gcc-version=$(AROSBUILDGCCVERS)  --with-portssources=$(AROSPORTSSRCSDIR) &&
     make -j
   workingDirectory: '$(AROSBUILDDIR)'
   displayName: 'Build $(arosbuild.name)'
